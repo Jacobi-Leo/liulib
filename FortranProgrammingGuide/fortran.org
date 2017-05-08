@@ -1,0 +1,10 @@
+#+AUTHOR: Jacob Zeyu LIU
+
+
+* Fortran Programming Guide
+
+This document contains principles of the author on Fortran programming language.
+The document is divided into three parts: the guiding ideology, the compiling
+criteria, and the coding standards.
+
+** The Guiding Ideology
