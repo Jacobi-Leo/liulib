@@ -1,6 +1,5 @@
 #+AUTHOR: Jacob Zeyu LIU
 
-
 * Fortran Programming Guide
 
 This document contains principles of the author on Fortran programming language.
@@ -8,3 +7,75 @@ The document is divided into three parts: the guiding ideology, the compiling
 criteria, and the coding standards.
 
 ** The Guiding Ideology
+
+*** Anything implicit is forbidden
+
+Due to historical reasons, there are so many obsolete /implicitors/ in the
+language Fortran. Old code use variables implicitly, F90 code call subroutines
+implicitly, and arrays with undetermined length appear all around the community.
+It is the response of this document to constrain the coding style of modern
+Fortran, so anything implicit mentioned above are forbidden.
+
+*** New data structures should be applied
+
+Derived data type is the modern weapon of Fortran, and the code benefits so
+much with derived data type in conciseness and readability. More importantly,
+the Fortran 2003 standard with methods embedded in types is a best way of
+tuning old FORTRAN to modern OOP type language.
+
+*** Interface should be unified and concise
+
+The older the FORTRAN is, the more the parameter of a single call. In modern
+Fortran with advanced data type, much information is kept in objects instead
+of traditional variables, so concise interface is feasible.
+
+One important aspect of designing a programming framework is unity. A unit
+design of interfaces is both convenient for users and developers. It is
+fruitful to create Fortran INTERFACE to unify the similar subroutines.
+
+** The Compiling Criteria
+
+*** Use double precision as default real type
+
+On modern PC, double precision is as fast as single precision, so the default
+real type should be double precision. so parameter =-fdefault-real-8= should
+be added while compiling, then all the numbers in code can be written without
+the ugly letter 'd'.
+
+** The Coding Standards
+
+*** Comments
+
+There are four levels of comments:
+-  Header :: This part contains the development information including
+        the name of the author, the purpose of the whole source file, etc.
+-  Code component illustrator :: This part is located on top of all lines
+        of a module, subroutine, or function, and just below the declaration line.
+        This part contains the illustration of the component and its parameters.
+        Each line explaining the behavior of the component is started without
+        '> ', and each line explaining the parameters should be in the form
+        of '>@ param[in/out] /name/ /illustration/'
+-  Code piece :: This part is at the top of one particular piece of code in
+        main program or code component, just for explaining, and no '> ' is
+        required.
+-  Inline :: This part is attached at the end of a line of code.
+
+*** Variable Name
+
+After some trials and errors, I will prefer CamelCase to underscores as the
+practice of compound word in variable name.
++  Variable :: lowerCamalCase
++  Module :: lowerCamalCase
++  Subroutine :: lowerCamalCase
++  Function :: lowerCamalCase
++  Constant :: UPPER CASE
++  Macros :: UPPER CASE
++  Derived Data Type :: UpperCamelCase
+
+*** Names in Module
+
+Rule of the thumb: constrain the naming of the code with form of OOP code of
+C++ to manage the namespace properly.
+
+
+*** Traditions on Naming and Spacing
