@@ -56,6 +56,8 @@ contains
     n2 = mat%ncol
 
     if ( m1 /= m2 .or. n1 /= n2 ) then
+       matrixAdd%nrow = -1
+       matrixAdd%ncol = -1
        matrixAdd%info = 11
     else
        matrixAdd%nrow = m1
