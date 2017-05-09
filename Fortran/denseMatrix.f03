@@ -5,29 +5,28 @@
 module denseMatrix
   use constant
 
-  type :: matrix
+  type :: Matrix
      integer :: nrow  ! number of rows
      integer :: ncol  ! number of columns
      real(kind=WP), dimension(nrow, ncol) :: comp  ! components of the matrix
    contains
      generic :: assignment(=) => matrixToArray, arrayToMatrix
-     generic :: operator(+) => matrixAdd
-     generic :: operator(-) => matrixSubtract
-     generic :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
-     procedure, pass :: inv
-     procedure, pass :: add
+     ! generic :: operator(+) => matrixAdd 
+     ! generic :: operator(-) => matrixSubtract
+     ! generic :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
+     ! procedure, pass :: inv
   end type matrix
 
 contains
 
   subroutine matrixToArray ( array, matrix )
-    type(matrix), intent(in) :: matrix
+    type(Matrix), intent(in) :: matrix
     real(kind=WP), intent(out), dimension(matrix%nrow, matrix%ncol) :: array
     array = matrix%coeff
   end subroutine matrixToArray
 
   subroutine arrayToMatrix ( matrix, array )
-    type(matrix), intent(out) :: matrix
+    type(Matrix), intent(out) :: matrix
     real(kind=WP), intent(in), dimension(:,:) :: array
     matrix%coeff = array
     matrix%nrow = size(array)
