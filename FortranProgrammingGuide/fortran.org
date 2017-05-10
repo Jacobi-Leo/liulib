@@ -38,8 +38,9 @@ fruitful to create Fortran INTERFACE to unify the similar subroutines.
 *** Use double precision as default real type
 
 On modern PC, double precision is as fast as single precision, so the default
-real type should be double precision. so parameter =-fdefault-real-8= should
-be added while compiling, then all the numbers in code can be written without
+real type should be double precision. So parameter =-fdefault-real-8= should
+be added while compiling with gfortran, and =-autodouble= should be added while
+compiling with ifort, then all the numbers in code can be written without
 the ugly letter 'd'.
 
 ** The Coding Standards
