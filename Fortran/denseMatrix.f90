@@ -1,10 +1,14 @@
 ! Created by Jacob Zeyu LIU (liuzeyu271828@gmail.com)
 !
-! This module contains the definition of matrix and some basic
-! operations, still under development
+! This module contains the definition of matrix and some basic operations,
+! still under development.
 !
 ! This code must be compiled with (in gfortran) -fdefault-real-8 and -std=f2003,
-! or -autodouble (in ifort)
+! or -autodouble (in ifort).
+!
+! Since Fortran 2003 features are massively utilized in this code,
+! gfortran version>=5.0 is required (v6.0 or higher is recommended),
+! and ifort 17 is verified while lower versions not tested.
 
 
 module denseMatrix
@@ -37,7 +41,7 @@ module denseMatrix
      procedure, private, pass(self) :: intTimesMatrix
      procedure, private, pass :: matrixTimesint
      procedure, private, pass :: matrixTimesMatrix
-     procedure, public, pass :: T
+     procedure, public, pass :: T  ! transpose
      procedure, public, pass :: writeToFile
      ! procedure, pass :: inv
      ! procedure, pass :: solve
@@ -205,6 +209,8 @@ contains
     integer, intent(in) :: fileUnit
     integer :: i, j
 
+    !! This is a bad solution
+    !!========================================================
     ! do i = 1, self%nrow
     !    do j = 1, self%ncol
     !       write(fileUnit, *) self%comp(i,j)
@@ -212,6 +218,7 @@ contains
     !    write(fileUnit,*)
     ! end do
 
+    ! exactly the way I want
     do i = 1, self%nrow
        write(fileUnit, *) ( self%comp(i,j), j = 1, self%ncol )
     end do
@@ -221,7 +228,7 @@ contains
   subroutine matrixClean ( self )
     type(Matrix), intent(inout) :: self
 
-    !! this is debug info
+    !! This is debug info
     !write(*,*) "In finalizer"
 
     if ( allocated( self%comp ) ) then
