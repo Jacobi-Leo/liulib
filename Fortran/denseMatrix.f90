@@ -93,24 +93,24 @@ module denseMatrix
 contains
 
   subroutine pushRow ( self, row )
-    type(Matrix), intent(inout) :: self
+    class(Matrix), intent(inout) :: self
     real(kind=WP), intent(in), dimension(:) :: row
     call self%resetToGeneral()
   end subroutine pushRow
 
   subroutine popRow ( self )
-    type(Matrix), intent(inout) :: self
+    class(Matrix), intent(inout) :: self
     call self%resetToGeneral()
   end subroutine popRow
 
   subroutine pushColumn ( self, column )
-    type(Matrix), intent(inout) :: self
+    class(Matrix), intent(inout) :: self
     real(kind=WP), intent(in), dimension(:) :: column
     call self%resetToGeneral()
   end subroutine pushColumn
 
   subroutine popColumn ( self )
-    type(Matrix), intent(inout) :: self
+    class(Matrix), intent(inout) :: self
     call self%resetToGeneral()
   end subroutine popColumn
 
