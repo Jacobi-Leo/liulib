@@ -10,6 +10,8 @@ program test
   integer :: i, j
   namelist / mylist2 / i, j
 
+  write(*,*) Mat%getNrow()
+
   forall ( i=1:m, j=1:n )
      A(i,j) = real(i*10+j, WP)
   end forall
@@ -35,7 +37,7 @@ program test
   write(11, *) 'This is matrix A: '
   call Mat%writeToFile(11)
   write(11, *) 'This is matrix Mat5: '
-  write(11, *) Mat%nrow, Mat5%ncol
+  write(11, *) Mat%getNrow(), Mat5%getNcolumn()
   call Mat5%writeToFile(11)
   write(11, *) 'This is vector b'
   call Vec%writeToFile(11)
@@ -45,6 +47,8 @@ program test
 
   write(11, *) 'This is transpose and matrix multiplication: '
   call Mat6%writeToFile(11)
+
+  write(*,*) Mat6%isDiagonal()
 
   close(11)
 

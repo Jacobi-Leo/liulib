@@ -21,34 +21,82 @@ module denseMatrix
   !   info = 127    The previous operation has unmatched dimension
   !======================================================================
   type, public :: Matrix
-     integer :: nrow  ! number of rows
-     integer :: ncol  ! number of columns
+     private
+     integer :: nrow = 0  ! number of rows
+     integer :: ncol = 0  ! number of columns
      real(kind=WP), allocatable :: comp(:,:)  ! components of the matrix
      integer :: info = 0  ! error information
+     logical :: diagonal = .false.
+     logical :: bidiagonal = .false.
    contains
+     !!===== Assignment and operators, as well as related. =======
      generic, public :: assignment(=) => arrayToMatrix, dArrayToMatrix
+     generic, public :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
+     generic, public :: operator(+) => matrixAdd, arrayAdd
+     generic, public :: operator(-) => matrixSubtract
      procedure, private, pass :: arrayToMatrix
      procedure, private, pass :: dArrayToMatrix
-     generic, public :: operator(+) => matrixAdd, arrayAdd
      procedure, private, pass :: matrixAdd
      procedure, private, pass :: arrayAdd
      procedure, public, pass :: addMatrix
-     generic, public :: operator(-) => matrixSubtract
      procedure, private, pass :: matrixSubtract
-     generic, public :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
      procedure, private, pass(self) :: realTimesMatrix
      procedure, private, pass :: matrixTimesreal
      procedure, private, pass(self) :: intTimesMatrix
      procedure, private, pass :: matrixTimesint
      procedure, private, pass :: matrixTimesMatrix
+     !!===========================================================
      procedure, public, pass :: T  ! transpose
      procedure, public, pass :: writeToFile
+     procedure, public, pass :: isAllocated
+     procedure, public, pass :: isDiagonal
+     procedure, public, pass :: isBidiagonal
+     procedure, public, pass :: getNrow
+     procedure, public, pass :: getNcolumn
+     procedure, public, pass :: getEllement
      ! procedure, pass :: inv
      ! procedure, pass :: solve
      final :: matrixClean
   end type matrix
 
 contains
+
+  function isDiagonal ( self ) result ( r )
+    class(Matrix), intent(in) :: self
+    logical :: r
+    r = self%diagonal
+  end function isDiagonal
+
+  function isBidiagonal ( self ) result ( r )
+    class(Matrix), intent(in) :: self
+    logical :: r
+    r = self%bidiagonal
+  end function isBidiagonal
+
+  function getEllement ( self, i, j ) result ( r )
+    class(Matrix), intent(in) :: self
+    real(kind=WP) :: r
+    integer, intent(in) :: i, j
+    r = self%comp(i,j)
+  end function getEllement
+
+  function getNrow ( self ) result ( r )
+    integer :: r
+    class(Matrix), intent(in) :: self
+    r = self%nrow
+  end function getNrow
+
+  function getNcolumn (self ) result ( r )
+    integer :: r
+    class(Matrix), intent(in) :: self
+    r = self%ncol
+  end function getNcolumn
+
+  function isAllocated ( self ) result ( r )
+    logical :: r
+    class(Matrix), intent(in) :: self
+    r = allocated( self%comp )
+  end function isAllocated
 
   subroutine arrayToMatrix ( mat, array )
     class(Matrix), intent(out) :: mat
