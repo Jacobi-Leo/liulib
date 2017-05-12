@@ -79,14 +79,44 @@ module denseMatrix
      procedure, public, pass :: printSpecialAttributes   ! not finished
      procedure, public, pass :: resetToGeneral           ! not finished
      !!===========================================================
+     procedure, public, pass :: pushRow
+     procedure, public, pass :: popRow
+     procedure, public, pass :: pushColumn
+     procedure, public, pass :: popColumn
      procedure, public, pass :: T  ! transpose
      procedure, public, pass :: writeToFile
      ! procedure, pass :: inv
-     ! procedure, pass :: solve
+     procedure, public, pass :: solve
      final :: matrixClean
   end type matrix
 
 contains
+
+  subroutine pushRow ( self, row )
+    type(Matrix), intent(inout) :: self
+    real(kind=WP), intent(in), dimension(:) :: row
+    call self%resetToGeneral()
+  end subroutine pushRow
+
+  subroutine popRow ( self )
+    type(Matrix), intent(inout) :: self
+    call self%resetToGeneral()
+  end subroutine popRow
+
+  subroutine pushColumn ( self, column )
+    type(Matrix), intent(inout) :: self
+    real(kind=WP), intent(in), dimension(:) :: column
+    call self%resetToGeneral()
+  end subroutine pushColumn
+
+  subroutine popColumn ( self )
+    type(Matrix), intent(inout) :: self
+    call self%resetToGeneral()
+  end subroutine popColumn
+
+  subroutine solve ( self, vec )
+    class(Matrix), intent(inout) :: self, vec
+  end subroutine solve
 
   subroutine printSpecialAttributes ( self )
     class(Matrix), intent(in) :: self
@@ -95,6 +125,8 @@ contains
   subroutine resetToGeneral ( self )
     class(Matrix), intent(inout) :: self
   end subroutine resetToGeneral
+
+  !============ The above procedures are not finished =================
 
   subroutine setHessenberg ( self, status )
     class(Matrix), intent(inout) :: self
