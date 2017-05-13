@@ -11,6 +11,9 @@
 ! and ifort 17 is verified while lower versions not tested (according to
 ! official document, ifort 16 is the first edition of ifort with full
 ! Fortran 2003 support).
+!
+! LAPACK is required by the solve routine, so -llapack should be added
+! to compiler flag.
 
 module denseMatrix
   use constant
@@ -54,7 +57,7 @@ module denseMatrix
      procedure, private, pass :: dArrayToMatrix
      procedure, private, pass :: matrixAdd
      procedure, private, pass :: arrayAdd
-     procedure, public, pass :: addMatrix
+     procedure, public, pass :: addMatrix     ! this is a subroutine, and other procedures are functions
      procedure, private, pass :: matrixSubtract
      procedure, private, pass(self) :: realTimesMatrix
      procedure, private, pass :: matrixTimesreal
@@ -62,6 +65,9 @@ module denseMatrix
      procedure, private, pass :: matrixTimesint
      procedure, private, pass :: matrixTimesMatrix
      !!===========================================================
+     ! predicates begins with /is/, and are functions
+     ! procedures begins with /set/ are subroutines
+     ! procedures begins with /get/ are functions
      procedure, public, pass :: isAllocated
      procedure, public, pass :: isDiagonal
      procedure, public, pass :: isBidiagonal
@@ -76,23 +82,92 @@ module denseMatrix
      procedure, public, pass :: getNrow
      procedure, public, pass :: getNcolumn
      procedure, public, pass :: getEllement
+     ! The following to procedures are subroutines
      procedure, public, pass :: printSpecialAttributes   ! not finished
      procedure, public, pass :: resetToGeneral           ! not finished
      !!===========================================================
+     ! manipulate the shape of matrix, all subroutines
      procedure, public, pass :: pushRow
      procedure, public, pass :: popRow
      procedure, public, pass :: pushColumn
      procedure, public, pass :: popColumn
      procedure, public, pass :: T  ! transpose
+     !!===========================================================
+     ! subroutine to write components into file in matrix form
      procedure, public, pass :: writeToFile
+     !!===========================================================
+     ! linear solver
      ! procedure, pass :: inv
-     procedure, public, pass :: solve
+     ! procedure, public, pass :: solve
+     !!===========================================================
      final :: matrixClean
   end type matrix
 
+  interface gesv
+     subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine sgesv
+     subroutine dgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine dgesv
+     subroutine zgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine zgesv
+     subroutine cgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine cgesv
+  end interface gesv
+
 contains
 
-  !================ below are not implemented ====================
+  subroutine solve ( self, b )  !! not finished
+    class(Matrix), intent(inout) :: self, b
+    integer, allocatable, dimension(:) :: ipiv
+
+    if ( (.not. self%isAllocated()) .or. (.not. b%isAllocated()) ) then
+       self%info = 126
+       return
+    else if ( self%ncol /= b%nrow ) then
+       self%info = 127
+       return
+    end if
+
+    call self%resetToGeneral()
+    call b%resetToGeneral()
+
+    associate( A => self%comp, bb => b%comp, info => self%info, &
+         m => self%nrow, n => self%ncol, nrhs => b%ncol )
+      if ( self%banded ) then
+!!!
+         return
+      else
+         !! The last case
+         allocate( ipiv(n) )
+         call gesv( n, nrhs, A, m, ipiv, bb, n, info )
+      end if
+    end associate
+  end subroutine solve
+
   subroutine pushRow ( self, row )
     class(Matrix), intent(inout) :: self
     real(kind=WP), intent(in), dimension(:) :: row
@@ -143,10 +218,7 @@ contains
     call self%T()
   end subroutine popColumn
 
-  subroutine solve ( self, vec )
-    class(Matrix), intent(inout) :: self, vec
-  end subroutine solve
-
+  !================ below are not implemented ====================
   subroutine printSpecialAttributes ( self )
     class(Matrix), intent(in) :: self
   end subroutine printSpecialAttributes
@@ -464,7 +536,7 @@ contains
        !===========================================!
        !! exactly the way I want
        do i = 1, self%nrow
-          write(fileUnit, *) ( self%comp(i,j), j = 1, self%ncol )
+          write(fileUnit, *) ( self%comp(i,j), j = 1,self%ncol )
        end do
     end if
 
@@ -481,3 +553,6 @@ contains
   end subroutine matrixClean
 
 end module denseMatrix
+
+
+

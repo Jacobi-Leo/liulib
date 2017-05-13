@@ -6,8 +6,8 @@ program test
   integer, parameter :: m = 5, n = 3
   real(kind=WP), dimension(m, n) :: A, B
   real(kind=WP), dimension(m) :: bb
-  type(Matrix) :: Mat, Mat2, Mat3, Mat4, Mat5, Mat6, Vec
-  integer :: i, j
+  type(Matrix) :: Mat, Mat2, Mat3, Mat4, Mat5, Mat6, Vec, Vec2
+  integer :: i, j, ii, jj
   namelist / mylist2 / i, j
 
   write(*,*) Mat%getNrow()
@@ -16,7 +16,9 @@ program test
      A(i,j) = real(i*10+j, WP)
   end forall
   B = A + 1.0
-  bb = 1.0
+  do i = 1, size(bb)
+     bb(i) = i
+  end do
   Vec = bb
   Mat = A
   ! Mat2 = A * 2.0
@@ -24,7 +26,7 @@ program test
   Mat3 = Mat + Mat2
   Mat4 = Mat3
   call Mat4%addMatrix(Mat)
-  Mat5 = 5.0 * Mat
+  Mat5 = 5 * Mat
 
 
   open(unit=11, file="constantResult.txt", action="write", status="replace")
@@ -45,10 +47,31 @@ program test
   call Mat5%T()
   Mat6 = Mat5 * Mat
 
-  write(11, *) 'This is transpose and matrix multiplication: '
-  call Mat6%writeToFile(11)
+  write(11, *) 'This is transpose and matrix multiplication: Mat5**T * Mat'
+  call Mat6%writeToFile(11) !! this result has been verified by Matlab
 
-  write(*,*) Mat6%isDiagonal()
+  write(11, *) 'This matrix times a column vector: Mat5**T * Vec'
+  Vec2 = Mat5 * Vec
+  call Vec2%writeToFile(11) !! this result has been verified by Matlab
+
+  call Mat5%T()
+  call Mat5%pushColumn( bb )
+  write(11, *) 'This is the extended Mat5: '
+  write(11, *) Mat5%getNrow(), Mat5%getNcolumn()
+  call Mat5%writeToFile(11)
+
+  !!============== test attribute predicates ========================
+  write(*,*) 'Is Mat6 diagonal? ', Mat6.isDiagonal()
+  write(*,*) 'Is Mat6 allocated? ', Mat6.isAllocated()
+  write(*,*) 'Is Mat6 bidiagonal? ', Mat6.isBidiagonal()
+  write(*,*) 'Is Mat6 Hessenberg? ', Mat6.isHessenberg()
+  write(*,*) 'Is Mat6 symmetric? ', Mat6.isSymmetric()
+  write(*,*) 'Is Mat6 tridiagonal? ', Mat6.isTridiagonal()
+  ii = Mat6.getNrow()
+  jj = Mat6.getNcolumn()
+  do i = 1, ii
+     write(*,*) (Mat6.getEllement(i,j), j=1,jj)
+  end do
 
   close(11)
 
