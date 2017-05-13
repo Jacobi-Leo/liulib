@@ -105,7 +105,7 @@ module denseMatrix
 
   interface gesv
      subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant
+       use constant, only: SGL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        real(kind=SGL), intent(inout), dimension(LDA, N) :: A
@@ -113,7 +113,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine sgesv
      subroutine dgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant
+       use constant, only: DBL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        real(kind=DBL), intent(inout), dimension(LDA, N) :: A
@@ -121,7 +121,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine dgesv
      subroutine zgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant
+       use constant, only: DBL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
@@ -129,7 +129,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine zgesv
      subroutine cgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant
+       use constant, only: SGL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
@@ -138,16 +138,56 @@ module denseMatrix
      end subroutine cgesv
   end interface gesv
 
+  interface gels
+     subroutine sgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: SGL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(out), dimension(:) :: WORK
+     end subroutine sgels
+     subroutine dgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: DBL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(out), dimension(:) :: WORK
+     end subroutine dgels
+     subroutine cgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: SGL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(out), dimension(:) :: WORK
+     end subroutine cgels
+     subroutine zgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: DBL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(out), dimension(:) :: WORK
+     end subroutine zgels
+  end interface gels
+
 contains
 
   subroutine solve ( self, b )  !! not finished
     class(Matrix), intent(inout) :: self, b
-    integer, allocatable, dimension(:) :: ipiv
+    integer, allocatable, dimension(:) :: work
+    integer :: lwork
 
     if ( (.not. self%isAllocated()) .or. (.not. b%isAllocated()) ) then
        self%info = 126
        return
-    else if ( self%ncol /= b%nrow ) then
+    else if ( self%nrow /= b%nrow ) then
        self%info = 127
        return
     end if
@@ -158,12 +198,26 @@ contains
     associate( A => self%comp, bb => b%comp, info => self%info, &
          m => self%nrow, n => self%ncol, nrhs => b%ncol )
       if ( self%banded ) then
-!!!
+!!! Something
          return
+      else if ( m > n ) then
+         allocate( work(1))
+         lwork = -1
+         call gels( 'N', m, n, nrhs, A, m, bb, m, work, lwork, info )
+         if ( info == 0 ) then
+            lwork = work(1)
+            deallocate( work )
+            lwork = max( 1, lwork )
+            allocate( work( lwork ) )
+            call gels( 'N', m, n, nrhs, A, m, bb, m, work, lwork, info )
+         end if
+      else if ( m == n .and. n == b%nrow ) then
+         !! The last case, square matrix
+         allocate( work(n) )
+         call gesv( n, nrhs, A, m, work, bb, n, info )
       else
-         !! The last case
-         allocate( ipiv(n) )
-         call gesv( n, nrhs, A, m, ipiv, bb, n, info )
+         info = 127
+         return
       end if
     end associate
   end subroutine solve
@@ -409,7 +463,7 @@ contains
   subroutine addMatrix ( self, mat )
     class(Matrix), intent(in) :: mat
     class(Matrix), intent(inout) :: self
-    integer :: m1, m2, n1, n2
+    !integer :: m1, m2, n1, n2
 
     if ( .not. self%isAllocated() ) then
        self%info = 126
@@ -553,6 +607,3 @@ contains
   end subroutine matrixClean
 
 end module denseMatrix
-
-
-
