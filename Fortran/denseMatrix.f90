@@ -92,26 +92,55 @@ module denseMatrix
 
 contains
 
+  !================ below are not implemented ====================
   subroutine pushRow ( self, row )
     class(Matrix), intent(inout) :: self
     real(kind=WP), intent(in), dimension(:) :: row
-    call self%resetToGeneral()
+    real(kind=WP), dimension(:,:), allocatable :: tmp
+    if ( self%ncol /= size(row) ) then
+       self%info = 127
+       return
+    else
+       call self%resetToGeneral()
+       allocate( tmp(self%nrow+1, self%ncol) )
+       tmp(1:self%nrow, 1:self%ncol) = self%comp
+       tmp(self%nrow+1, :) = row
+       self = tmp
+       deallocate( tmp )
+    end if
   end subroutine pushRow
 
   subroutine popRow ( self )
     class(Matrix), intent(inout) :: self
+    real(kind=WP), allocatable, dimension(:,:) :: tmp
+
     call self%resetToGeneral()
+    allocate( tmp(self%nrow-1, self%ncol) )
+    tmp = self%comp(1:self%nrow-1, 1:self%ncol)
+    self = tmp
+    deallocate( tmp )
   end subroutine popRow
 
   subroutine pushColumn ( self, column )
     class(Matrix), intent(inout) :: self
     real(kind=WP), intent(in), dimension(:) :: column
     call self%resetToGeneral()
+    if ( self%nrow /= size(column) ) then
+       self%info = 127
+       return
+    else
+       call self%T()
+       call self%pushRow(column)
+       call self%T()
+    end if
   end subroutine pushColumn
 
   subroutine popColumn ( self )
     class(Matrix), intent(inout) :: self
     call self%resetToGeneral()
+    call self%T()
+    call self%popRow()
+    call self%T()
   end subroutine popColumn
 
   subroutine solve ( self, vec )
@@ -124,6 +153,11 @@ contains
 
   subroutine resetToGeneral ( self )
     class(Matrix), intent(inout) :: self
+
+    if ( allocated( self%band ) ) then
+       deallocate( self%band )
+    end if
+    !! more to do
   end subroutine resetToGeneral
 
   !============ The above procedures are not finished =================
