@@ -4,11 +4,13 @@ program test
   implicit none
 
   integer, parameter :: m = 5, n = 3
-  real(kind=WP), dimension(m, n) :: A, B
-  real(kind=WP), dimension(m) :: bb
+  real(kind=WP), dimension(:, :), allocatable :: A, B
+  real(kind=WP), dimension(:), allocatable :: bb
   type(Matrix) :: Mat, Mat2, Mat3, Mat4, Mat5, Mat6, Vec, Vec2
   integer :: i, j, ii, jj
   namelist / mylist2 / i, j
+
+  allocate( A(m,n), B(m,n), bb(n) )
 
   write(*,*) Mat%getNrow()
 
@@ -72,6 +74,50 @@ program test
   do i = 1, ii
      write(*,*) (Mat6.getEllement(i,j), j=1,jj)
   end do
+  call Mat6.printSpecialAttributes()
+
+  deallocate( A, B, bb )
+  allocate( A(3, 3) )
+  A = reshape([3,1,1,0,4,0,1,2,5], [3,3])
+
+  write(*,*) 'array A now is: '
+  write(*,*) A
+
+  Mat = A
+
+  write(11, *) 'Mat is now: '
+  call Mat.writeToFile(11)
+
+  allocate( bb(3) )
+  bb = [6, 15, 16]
+  Vec = bb
+  write(11, *) 'Vec is now:'
+  call Vec.writeToFile(11)
+
+  call Mat.solve(Vec)
+  write(11, *) 'Solution to equation Mat * x = Vec is  x = '
+  call Vec.writeToFile(11)
+
+  Mat = A
+  Vec = bb
+  deallocate( bb )
+  allocate( bb(3) )
+  bb = [4., 4., 5.]
+  call Mat.pushRow( bb )
+
+  deallocate( bb )
+  allocate( bb(1) )
+  bb = [27.]
+  call Vec.pushRow( bb )
+
+  write(11, *) 'Now   Mat = '
+  call Mat.writeToFile(11)
+  write(11, *) 'Now   Vec = '
+  call Vec.writeToFile(11)
+  write(11, *) 'Now solution is   x = '
+  ! call Mat.solve(Vec)
+  ! call Vec.writeToFile(11)
+
 
   close(11)
 

@@ -98,7 +98,7 @@ module denseMatrix
      !!===========================================================
      ! linear solver
      ! procedure, pass :: inv
-     ! procedure, public, pass :: solve
+     procedure, public, pass :: solve
      !!===========================================================
      final :: matrixClean
   end type matrix
@@ -272,9 +272,14 @@ contains
     call self%T()
   end subroutine popColumn
 
-  !================ below are not implemented ====================
+  !================ below are not fully implemented ====================
   subroutine printSpecialAttributes ( self )
     class(Matrix), intent(in) :: self
+1   format ( 1X, A40, 1X, L5 )
+    write(*,*)
+    write(*,*) 'Attributes of this matrix: '
+    write(*,1) 'Is this matrix allocatable?', self%isAllocated()
+    write(*,*)
   end subroutine printSpecialAttributes
 
   subroutine resetToGeneral ( self )
