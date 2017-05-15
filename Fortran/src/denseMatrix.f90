@@ -216,12 +216,10 @@ contains
       else if ( m > n ) then
          call gels ( 'N', m, n, nrhs, A, m, bb, m, test, -1, info )
          if ( info == 0 ) then
-            write(*,*) "I'm here..."
             lwork = max( 1, int(test(1)) )
             allocate( work( lwork ) )
             call gels( 'N', m, n, nrhs, A, m, bb, m, work, lwork, info )
          end if
-         write(*,*) lwork
       else if ( m == n .and. n == b%nrow ) then
          !! The last case, square matrix
          allocate( ipiv(n) )

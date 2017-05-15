@@ -65,18 +65,18 @@ program test
   call Mat5%writeToFile(11)
 
   !!============== test attribute predicates ========================
-  write(*,*) 'Is Mat6 diagonal? ', Mat6.isDiagonal()
-  write(*,*) 'Is Mat6 allocated? ', Mat6.isAllocated()
-  write(*,*) 'Is Mat6 bidiagonal? ', Mat6.isBidiagonal()
-  write(*,*) 'Is Mat6 Hessenberg? ', Mat6.isHessenberg()
-  write(*,*) 'Is Mat6 symmetric? ', Mat6.isSymmetric()
-  write(*,*) 'Is Mat6 tridiagonal? ', Mat6.isTridiagonal()
-  ii = Mat6.getNrow()
-  jj = Mat6.getNcolumn()
+  write(*,*) 'Is Mat6 diagonal? ', Mat6%isDiagonal()
+  write(*,*) 'Is Mat6 allocated? ', Mat6%isAllocated()
+  write(*,*) 'Is Mat6 bidiagonal? ', Mat6%isBidiagonal()
+  write(*,*) 'Is Mat6 Hessenberg? ', Mat6%isHessenberg()
+  write(*,*) 'Is Mat6 symmetric? ', Mat6%isSymmetric()
+  write(*,*) 'Is Mat6 tridiagonal? ', Mat6%isTridiagonal()
+  ii = Mat6%getNrow()
+  jj = Mat6%getNcolumn()
   do i = 1, ii
-     write(*,*) (Mat6.getEllement(i,j), j=1,jj)
+     write(*,*) (Mat6%getEllement(i,j), j=1,jj)
   end do
-  call Mat6.printSpecialAttributes()
+  call Mat6%printSpecialAttributes()
 
   deallocate( A, B, bb )
   allocate( A(3, 3) )
@@ -88,37 +88,37 @@ program test
   Mat = A
 
   write(11, *) 'Mat is now: '
-  call Mat.writeToFile(11)
+  call Mat%writeToFile(11)
 
   allocate( bb(3) )
   bb = [6, 15, 16]
   Vec = bb
   write(11, *) 'Vec is now:'
-  call Vec.writeToFile(11)
+  call Vec%writeToFile(11)
 
-  call Mat.solve(Vec)
+  call Mat%solve(Vec)
   write(11, *) 'Solution to equation Mat * x = Vec is  x = '
-  call Vec.writeToFile(11)
+  call Vec%writeToFile(11)
 
   Mat = A
   Vec = bb
   deallocate( bb )
   allocate( bb(3) )
   bb = [4., 4., 5.]
-  call Mat.pushRow( bb )
+  call Mat%pushRow( bb )
 
   deallocate( bb )
   allocate( bb(1) )
   bb = [27.]
-  call Vec.pushRow( bb )
+  call Vec%pushRow( bb )
 
   write(11, *) 'Now   Mat = '
-  call Mat.writeToFile(11)
+  call Mat%writeToFile(11)
   write(11, *) 'Now   Vec = '
-  call Vec.writeToFile(11)
+  call Vec%writeToFile(11)
   write(11, *) 'Now solution is   x = '
-  call Mat.solve(Vec)
-  call Vec.writeToFile(11)
+  call Mat%solve(Vec)
+  call Vec%writeToFile(11)
 
 
   close(11)
