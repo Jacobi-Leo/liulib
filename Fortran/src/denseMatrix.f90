@@ -598,7 +598,7 @@ contains
     class(Matrix), intent(in) :: self
 
     if ( self%banded ) then
-       trans.info = 125
+       trans%info = 125
        return
     end if
 
