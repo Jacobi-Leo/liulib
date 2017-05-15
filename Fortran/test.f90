@@ -17,7 +17,6 @@ program test
   forall ( i=1:m, j=1:n )
      A(i,j) = real(i*10+j, WP)
   end forall
-  B = A + 1.0
   do i = 1, size(bb)
      bb(i) = i
   end do
@@ -38,6 +37,9 @@ program test
   open(unit=11, file="denseMatrixResult.txt", action="write", status="replace")
   write(11, *) 'This is array A: '
   write(11, *) A
+  B = Mat
+  write(11, *) 'This is array B: '
+  write(11, *) B
   write(11, *) 'This is matrix A: '
   call Mat%writeToFile(11)
   write(11, *) 'This is matrix Mat5: '
@@ -46,7 +48,7 @@ program test
   write(11, *) 'This is vector b'
   call Vec%writeToFile(11)
 
-  call Mat5%T()
+  Mat5 = Mat5%trans()
   Mat6 = Mat5 * Mat
 
   write(11, *) 'This is transpose and matrix multiplication: Mat5**T * Mat'
@@ -56,7 +58,7 @@ program test
   Vec2 = Mat5 * Vec
   call Vec2%writeToFile(11) !! this result has been verified by Matlab
 
-  call Mat5%T()
+  Mat5 = Mat5%trans()
   call Mat5%pushColumn( bb )
   write(11, *) 'This is the extended Mat5: '
   write(11, *) Mat5%getNrow(), Mat5%getNcolumn()
@@ -115,8 +117,8 @@ program test
   write(11, *) 'Now   Vec = '
   call Vec.writeToFile(11)
   write(11, *) 'Now solution is   x = '
-  ! call Mat.solve(Vec)
-  ! call Vec.writeToFile(11)
+  call Mat.solve(Vec)
+  call Vec.writeToFile(11)
 
 
   close(11)

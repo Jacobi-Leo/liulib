@@ -20,10 +20,89 @@ module denseMatrix
   implicit none
   private
 
+  interface gesv
+     subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant, only: SGL
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine sgesv
+     subroutine dgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant, only: DBL
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine dgesv
+     subroutine zgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant, only: DBL
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine zgesv
+     subroutine cgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+       use constant, only: SGL
+       integer, intent(in) :: N, NRHS, LDA, LDB
+       integer, intent(out) :: INFO
+       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       integer, intent(inout), dimension(N) :: IPIV
+     end subroutine cgesv
+  end interface gesv
+
+  interface gels
+     !! There is bug here.  The array WORK is assumed-size dummy array instead of
+     !! assumed-shape dummy array.  This is REALLY a bug in modern Fortran.
+     !! However, if assumed-shape dummy array used, workspace query is broken,
+     !! which is wired, still can't figure out why.
+     subroutine sgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: SGL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       real(kind=SGL), intent(inout), dimension(*) :: WORK
+     end subroutine sgels
+     subroutine dgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: DBL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       real(kind=DBL), intent(inout), dimension(*) :: WORK
+     end subroutine dgels
+     subroutine cgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: SGL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
+       real(kind=SGL), intent(inout), dimension(*) :: WORK
+     end subroutine cgels
+     subroutine zgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+       use constant, only: DBL
+       character, intent(in) :: TRANS
+       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
+       integer, intent(out) :: INFO
+       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
+       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
+       real(kind=DBL), intent(inout), dimension(*) :: WORK
+     end subroutine zgels
+  end interface gels
+
   !======================================================================
   ! Error Information List
   !   info = 127    The previous operation has unmatched dimension
   !   info = 126    Trying to use unallocated components
+  !   info = 125    Illegal operation required
   !======================================================================
   ! Error information is used for debugging and testing whether the
   ! previous operation is valid, never judge the feasibility of one
@@ -49,11 +128,12 @@ module denseMatrix
      logical :: positiveDefinite = .false. ! not implemented
    contains
      !!===== Assignment and operators, as well as related. =======
-     generic, public :: assignment(=) => arrayToMatrix, dArrayToMatrix
+     generic, public :: assignment(=) => arrayToMatrix, dArrayToMatrix, matrixToArray
      generic, public :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
      generic, public :: operator(+) => matrixAdd, arrayAdd
      generic, public :: operator(-) => matrixSubtract
      procedure, private, pass :: arrayToMatrix
+     procedure, private, pass(mat) :: matrixToArray
      procedure, private, pass :: dArrayToMatrix
      procedure, private, pass :: matrixAdd
      procedure, private, pass :: arrayAdd
@@ -91,10 +171,12 @@ module denseMatrix
      procedure, public, pass :: popRow
      procedure, public, pass :: pushColumn
      procedure, public, pass :: popColumn
-     procedure, public, pass :: T  ! transpose
      !!===========================================================
      ! subroutine to write components into file in matrix form
      procedure, public, pass :: writeToFile
+     !!===========================================================
+     procedure, private, pass :: T  ! transpose
+     procedure, public, pass :: trans
      !!===========================================================
      ! linear solver
      ! procedure, pass :: inv
@@ -103,85 +185,14 @@ module denseMatrix
      final :: matrixClean
   end type matrix
 
-  interface gesv
-     subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: SGL
-       integer, intent(in) :: N, NRHS, LDA, LDB
-       integer, intent(out) :: INFO
-       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
-       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(inout), dimension(N) :: IPIV
-     end subroutine sgesv
-     subroutine dgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: DBL
-       integer, intent(in) :: N, NRHS, LDA, LDB
-       integer, intent(out) :: INFO
-       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
-       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(inout), dimension(N) :: IPIV
-     end subroutine dgesv
-     subroutine zgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: DBL
-       integer, intent(in) :: N, NRHS, LDA, LDB
-       integer, intent(out) :: INFO
-       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
-       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(inout), dimension(N) :: IPIV
-     end subroutine zgesv
-     subroutine cgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: SGL
-       integer, intent(in) :: N, NRHS, LDA, LDB
-       integer, intent(out) :: INFO
-       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
-       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(inout), dimension(N) :: IPIV
-     end subroutine cgesv
-  end interface gesv
-
-  interface gels
-     subroutine sgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: SGL
-       character, intent(in) :: TRANS
-       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
-       integer, intent(out) :: INFO
-       real(kind=SGL), intent(inout), dimension(LDA, N) :: A
-       real(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(out), dimension(:) :: WORK
-     end subroutine sgels
-     subroutine dgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: DBL
-       character, intent(in) :: TRANS
-       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
-       integer, intent(out) :: INFO
-       real(kind=DBL), intent(inout), dimension(LDA, N) :: A
-       real(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(out), dimension(:) :: WORK
-     end subroutine dgels
-     subroutine cgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: SGL
-       character, intent(in) :: TRANS
-       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
-       integer, intent(out) :: INFO
-       complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
-       complex(kind=SGL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(out), dimension(:) :: WORK
-     end subroutine cgels
-     subroutine zgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: DBL
-       character, intent(in) :: TRANS
-       integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
-       integer, intent(out) :: INFO
-       complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
-       complex(kind=DBL), intent(inout), dimension(LDB, NRHS) :: B
-       integer, intent(out), dimension(:) :: WORK
-     end subroutine zgels
-  end interface gels
-
 contains
 
   subroutine solve ( self, b )  !! not finished
     class(Matrix), intent(inout) :: self, b
-    integer, allocatable, dimension(:) :: work
+    real(kind=WP), allocatable, dimension(:) :: work
+    integer, allocatable, dimension(:) :: ipiv
+    real(kind=WP), dimension(1) :: test
+    ! real(kind=WP), allocatable, dimension(:,:) :: A, bb
     integer :: lwork
 
     if ( (.not. self%isAllocated()) .or. (.not. b%isAllocated()) ) then
@@ -195,26 +206,25 @@ contains
     call self%resetToGeneral()
     call b%resetToGeneral()
 
-    associate( A => self%comp, bb => b%comp, info => self%info, &
-         m => self%nrow, n => self%ncol, nrhs => b%ncol )
+    ! A = self
+    ! bb = b
+    associate( A=>self%comp, bb=>b%comp, info=>self%info, m=>self%nrow, n=>self%ncol, nrhs=>b%ncol )
       if ( self%banded ) then
-!!! Something
+!!! Something to do
          return
       else if ( m > n ) then
-         allocate( work(1))
-         lwork = -1
-         call gels( 'N', m, n, nrhs, A, m, bb, m, work, lwork, info )
+         call gels ( 'N', m, n, nrhs, A, m, bb, m, test, -1, info )
          if ( info == 0 ) then
-            lwork = work(1)
-            deallocate( work )
-            lwork = max( 1, lwork )
+            write(*,*) "I'm here..."
+            lwork = max( 1, int(test(1)) )
             allocate( work( lwork ) )
             call gels( 'N', m, n, nrhs, A, m, bb, m, work, lwork, info )
          end if
+         write(*,*) lwork
       else if ( m == n .and. n == b%nrow ) then
          !! The last case, square matrix
-         allocate( work(n) )
-         call gesv( n, nrhs, A, m, work, bb, n, info )
+         allocate( ipiv(n) )
+         call gesv( n, nrhs, A, m, ipiv, bb, n, info )
       else
          info = 127
          return
@@ -400,6 +410,13 @@ contains
     mat%info = 0
   end subroutine arrayToMatrix
 
+  subroutine matrixToArray ( array, mat )
+    class(Matrix), intent(in) :: mat
+    real(kind=WP), intent(out), dimension(:,:), allocatable :: array
+    allocate( array(mat%nrow, mat%ncol) )
+    array = mat%comp
+  end subroutine matrixToArray
+
   subroutine dArrayToMatrix ( mat, array )
     class(Matrix), intent(out) :: mat
     real(kind=WP), intent(in), dimension(:) :: array
@@ -575,6 +592,22 @@ contains
        self%comp = transpose(self%comp)
     end if
   end subroutine T
+
+  function trans ( self )
+    type(Matrix) :: trans
+    class(Matrix), intent(in) :: self
+
+    if ( self%banded ) then
+       trans.info = 125
+       return
+    end if
+
+    allocate( trans%comp(self%ncol, self%nrow) )
+    trans = transpose(self%comp)
+    trans%nrow = self%ncol
+    trans%ncol = self%nrow
+
+  end function trans
 
   subroutine writeToFile ( self, fileUnit )
     class(Matrix), intent(in) :: self
