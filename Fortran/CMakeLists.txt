@@ -4,6 +4,7 @@ project(matrix)
 enable_language(Fortran)
 
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack")
+set(CMAKE_Fortran_COMPILER "ifort")
 set(CMAKE_Fortran_COMPILER_ID "Intel")
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")

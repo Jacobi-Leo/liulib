@@ -112,8 +112,8 @@ module denseMatrix
      private
      integer :: nrow = 0  ! number of rows
      integer :: ncol = 0  ! number of columns
-     integer :: nupper = 0  ! number of superdiagonals
-     integer :: nlower = 0  ! number of subdiagonals
+     integer :: nupper = -1  ! number of superdiagonals
+     integer :: nlower = -1  ! number of subdiagonals
      real(kind=WP), allocatable :: comp(:,:)  ! components of the matrix
      real(kind=WP), allocatable :: band(:,:)  ! form of band matrix
      integer :: info = 0  ! error information
@@ -148,6 +148,7 @@ module denseMatrix
      ! predicates begins with /is/, and are functions
      ! procedures begins with /set/ are subroutines
      ! procedures begins with /get/ are functions
+     !!===========================================================
      procedure, public, pass :: isAllocated
      procedure, public, pass :: isDiagonal
      procedure, public, pass :: isBidiagonal
