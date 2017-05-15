@@ -1,1 +1,3 @@
-# My project's README
+# My Mathematical Library
+
+This library is mostly a wrapper...
