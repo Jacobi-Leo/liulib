@@ -1,4 +1,4 @@
-#+AUTHOR: Jacob Zeyu LIU
+#+AUTHOR: Jacob Zeyu LIU (liuzeyu271828@gmail.com)
 
 * Fortran Programming Guide
 
@@ -43,40 +43,47 @@ be added while compiling with gfortran, and =-autodouble= should be added while
 compiling with ifort, then all the numbers in code can be written without
 the ugly letter 'd'.
 
-** The Coding Standards
+** The Coding Conventions
 
 *** Comments
 
 There are four levels of comments:
--  Header :: This part contains the development information including
-        the name of the author, the purpose of the whole source file, etc.
--  Code component illustrator :: This part is located on top of all lines
-        of a module, subroutine, or function, and just below the declaration line.
-        This part contains the illustration of the component and its parameters.
-        Each line explaining the behavior of the component is started without
-        '> ', and each line explaining the parameters should be in the form
-        of '>@ param[in/out] /name/ /illustration/'
--  Code piece :: This part is at the top of one particular piece of code in
-        main program or code component, just for explaining, and no '> ' is
-        required.
--  Inline :: This part is attached at the end of a line of code.
+- Header :: This part contains the development information including
+  the name of the author, the purpose of the whole source file, etc.
+- Code component illustrator :: This part is located on top of all lines
+  of a module, subroutine, or function, and just below the declaration line.
+  This part contains the illustration of the component and its parameters.
+  Each line explaining the behavior of the component is started without
+  '> ', and each line explaining the parameters should be in the form
+  of '>@ param[in/out] /name/ /illustration/'
+- Code piece :: This part is at the top of one particular piece of code in
+  main program or code component, just for explaining, and no '> ' is
+  required.
+- Inline :: This part is attached at the end of a line of code.
+- Tail (optional) :: Contains the version control information is version control
+  system is not available
 
 *** Variable Name
 
 After some trials and errors, I will prefer CamelCase to underscores as the
 practice of compound word in variable name.
-+  Variable :: lowerCamalCase
-+  Module :: lowerCamalCase
-+  Subroutine :: lowerCamalCase
-+  Function :: lowerCamalCase
-+  Constant :: UPPER CASE
-+  Macros :: UPPER CASE
-+  Derived Data Type :: UpperCamelCase
++ Variable :: lowerCamalCase
++ Module :: lowerCamalCase
++ Subroutine :: lowerCamalCase
++ Function :: lowerCamalCase
++ Constant :: UPPER_CASE
++ Macros :: UPPER_CASE
++ Derived Data Type :: UpperCamelCase
 
 *** Names in Module
-
+    
 Rule of the thumb: constrain the naming of the code with form of OOP code of
 C++ to manage the namespace properly.
 
+*** Conventions on Specific Naming and Spacing
 
-*** Traditions on Naming and Spacing
+- The attributive part of name must be the zeroth part.
+- The attributive should be abbreviation instead of full spelling, i.e. semi, full, tmp, loc, rmt.
+- Blank lines are required between two blocks of code.
+- Function and subroutines should be in the form of ~xxXxxXxx( xx, xx )~.
+- Programming instructions should be in the form of ~xx ( xx, xx, xx )~.
