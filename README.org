@@ -1,0 +1,21 @@
+#+AUTHOR: Jacob Zeyu LIU (liuzeyu271828@gmail.com)
+
+* My Mathematical Library
+
+This library is mostly a wrapper of existing excellent numerical libraries
+such as [[http://www.netlib.org/lapack/][LAPACK]] and [[http://www.netlib.org/blas/][BLAS]]. 
+
+** Contents Summary
+
+*** Directory ~Fortran~
+Contains the Fortran source code of numerical libraries.
+
+*** Directory ~FortranProgrammingGuide~
+Contains my coding style of Fortran.
+
+*** File ~.gitignore~
+As shown by its name.
+
+*** File ~README.org~
+This very file.
+
