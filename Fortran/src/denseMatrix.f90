@@ -182,18 +182,26 @@ module denseMatrix
      ! linear solver
      ! procedure, pass :: inv
      procedure, public, pass :: solve
+     procedure, private, pass :: solver
      !!===========================================================
      final :: matrixClean
   end type matrix
 
 contains
 
-  subroutine solve ( self, b )  !! not finished
+  function solve ( self, b ) result ( x )
+    type(Matrix) :: x, A
+    class(Matrix), intent(in) :: self, b
+    A = self
+    x = b
+    call A%solver(x)
+  end function solve
+
+  subroutine solver ( self, b )  !! not finished
     class(Matrix), intent(inout) :: self, b
     real(kind=WP), allocatable, dimension(:) :: work
     integer, allocatable, dimension(:) :: ipiv
     real(kind=WP), dimension(1) :: test
-    ! real(kind=WP), allocatable, dimension(:,:) :: A, bb
     integer :: lwork
 
     if ( (.not. self%isAllocated()) .or. (.not. b%isAllocated()) ) then
@@ -207,8 +215,6 @@ contains
     call self%resetToGeneral()
     call b%resetToGeneral()
 
-    ! A = self
-    ! bb = b
     associate( A=>self%comp, bb=>b%comp, info=>self%info, m=>self%nrow, n=>self%ncol, nrhs=>b%ncol )
       if ( self%banded ) then
 !!! Something to do
@@ -229,7 +235,7 @@ contains
          return
       end if
     end associate
-  end subroutine solve
+  end subroutine solver
 
   subroutine pushRow ( self, row )
     class(Matrix), intent(inout) :: self
@@ -297,6 +303,7 @@ contains
     if ( allocated( self%band ) ) then
        deallocate( self%band )
     end if
+    self%info = 0
     !! more to do
   end subroutine resetToGeneral
 

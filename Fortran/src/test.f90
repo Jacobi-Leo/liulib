@@ -94,14 +94,12 @@ program test
   bb = [6, 15, 16]
   Vec = bb
   write(11, *) 'Vec is now:'
-  call Vec%writeToFile(11)
+  call Vec2%writeToFile(11)
 
-  call Mat%solve(Vec)
+  Vec2 = Mat%solve(Vec)
   write(11, *) 'Solution to equation Mat * x = Vec is  x = '
   call Vec%writeToFile(11)
 
-  Mat = A
-  Vec = bb
   deallocate( bb )
   allocate( bb(3) )
   bb = [4., 4., 5.]
@@ -117,8 +115,8 @@ program test
   write(11, *) 'Now   Vec = '
   call Vec%writeToFile(11)
   write(11, *) 'Now solution is   x = '
-  call Mat%solve(Vec)
-  call Vec%writeToFile(11)
+  Vec2 = Mat%solve(Vec)
+  call Vec2%writeToFile(11)
 
 
   close(11)
