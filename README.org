@@ -7,10 +7,10 @@ such as [[http://www.netlib.org/lapack/][LAPACK]] and [[http://www.netlib.org/bl
 
 ** Contents Summary
 
-*** Directory ~Fortran~
+*** Directory ~Fortran/~
 Contains the Fortran source code of numerical libraries.
 
-*** Directory ~FortranProgrammingGuide~
+*** Directory ~FortranProgrammingGuide/~
 Contains my coding style of Fortran.
 
 *** File ~.gitignore~
