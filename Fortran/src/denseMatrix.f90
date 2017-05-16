@@ -112,16 +112,16 @@ module denseMatrix
      private
      integer :: nrow = 0  ! number of rows
      integer :: ncol = 0  ! number of columns
-     integer :: nupper = -1  ! number of superdiagonals
-     integer :: nlower = -1  ! number of subdiagonals
+     ! integer :: nupper = -1  ! number of superdiagonals
+     ! integer :: nlower = -1  ! number of subdiagonals
      real(kind=WP), allocatable :: comp(:,:)  ! components of the matrix
-     real(kind=WP), allocatable :: band(:,:)  ! form of band matrix
+     ! real(kind=WP), allocatable :: band(:,:)  ! form of band matrix
      integer :: info = 0  ! error information
      logical :: diagonal = .false.
      logical :: bidiagonal = .false.
      logical :: tridiagonal = .false.
      logical :: hessenberg = .false. ! upper Hessenberg considered only
-     logical :: banded = .false.     ! not implemented
+     ! logical :: banded = .false.     ! not implemented
      logical :: symmetric = .false.
      logical :: hermitian = .false.  ! not implemented
      logical :: orthogonal = .false. ! not implemented
@@ -216,10 +216,7 @@ contains
     call b%resetToGeneral()
 
     associate( A=>self%comp, bb=>b%comp, info=>self%info, m=>self%nrow, n=>self%ncol, nrhs=>b%ncol )
-      if ( self%banded ) then
-!!! Something to do
-         return
-      else if ( m > n ) then
+      if ( m > n ) then
          call gels ( 'N', m, n, nrhs, A, m, bb, m, test, -1, info )
          if ( info == 0 ) then
             lwork = max( 1, int(test(1)) )
@@ -300,9 +297,9 @@ contains
   subroutine resetToGeneral ( self )
     class(Matrix), intent(inout) :: self
 
-    if ( allocated( self%band ) ) then
-       deallocate( self%band )
-    end if
+    ! if ( allocated( self%band ) ) then
+    !    deallocate( self%band )
+    ! end if
     self%info = 0
     !! more to do
   end subroutine resetToGeneral
@@ -370,13 +367,14 @@ contains
   end function isHessenberg
 
   function getEllement ( self, i, j ) result ( r )
-    class(Matrix), intent(in) :: self
+    class(Matrix), intent(inout) :: self
     real(kind=WP) :: r
     integer, intent(in) :: i, j
     if ( self%isAllocated() ) then
        r = self%comp(i,j)
     else
-       stop '126'
+       self%info = 126
+       return
     end if
   end function getEllement
 
@@ -443,11 +441,11 @@ contains
   function matrixAdd ( self, mat ) result ( r )
     !==========================================
     ! If the dimension of self and mat does not
-    ! match, program stopped.
-    ! If the parameter self is not allocated, mat
-    ! is returned with error info.
-    ! If the parameter mat is not allocated, self
-    ! is returned with error info.
+    ! match, function return to main.
+    ! If the parameter /self/ is not allocated, mat
+    ! is returned.
+    ! If the parameter /mat/ is not allocated, self
+    ! is returned.
     !
     ! The following three procedures are based on
     ! this one.
@@ -463,13 +461,11 @@ contains
 
     if ( .not. self%isAllocated() ) then
        r = mat
-       r%info = 126
     else if ( .not. mat%isAllocated() ) then
        r = self
-       r%info = 126
     else if ( m1 /= m2 .or. n1 /= n2 ) then
        r%info = 127
-       stop '127'
+       return
     else
        r%nrow = m1
        r%ncol = n1
@@ -603,10 +599,10 @@ contains
     type(Matrix) :: trans
     class(Matrix), intent(in) :: self
 
-    if ( self%banded ) then
-       trans%info = 125
-       return
-    end if
+    ! if ( self%banded ) then
+    !    trans%info = 125
+    !    return
+    ! end if
 
     allocate( trans%comp(self%ncol, self%nrow) )
     trans = transpose(self%comp)
