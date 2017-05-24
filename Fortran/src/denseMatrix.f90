@@ -290,7 +290,7 @@ contains
 1   format ( 1X, A40, 1X, L5 )
     write(*,*)
     write(*,*) 'Attributes of this matrix: '
-    write(*,1) 'Is this matrix allocatable?', self%isAllocated()
+    write(*,1) 'Is this matrix allocated?', self%isAllocated()
     write(*,*)
   end subroutine printSpecialAttributes
 
