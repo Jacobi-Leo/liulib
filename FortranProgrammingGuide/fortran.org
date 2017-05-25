@@ -23,6 +23,23 @@ much with derived data type in conciseness and readability. More importantly,
 the Fortran 2003 standard with methods embedded in types is a best way of
 tuning old FORTRAN to modern OOP type language.
 
+However, there are some shortcomings of OOP where attention should be paid.
+OOP commonly leads to a much too complicated data structure with redundant
+inheritance. Data encapsulation simplifies the management of data in code logic
+but aggravates the burden of managing data structure itself, so once the
+burden of managing data structure increases too much, data encapsulation
+becomes less worthwhile.
+
+Taking the design of derived data type, ~denseMatrix~, for example, 
+it seems a good practice to
+design an abstract type ~Matrix~ first and then create extended derived data
+types such as ~denseMatrix~, ~bandedMatrix~, and ~sparseMatrix~, 
+but this is redundant in fact. The three kinds of matrices differ a
+lot in storage structure of attributes. More importantly, there are actually
+only three kinds of matrix all around there, not even a fourth kind, so one
+can just implement the three one by one, which leads to great flexibility and
+much less data dependency.
+
 *** Interface should be unified and concise
 
 The older the FORTRAN is, the more the parameter of a single call. In modern
