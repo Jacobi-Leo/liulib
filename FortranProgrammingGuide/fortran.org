@@ -43,6 +43,10 @@ be added while compiling with gfortran, and =-autodouble= should be added while
 compiling with ifort, then all the numbers in code can be written without
 the ugly letter 'd'.
 
+Another method is using form ~1.23_wp~ as ~wp~ is defined as the working
+precision. In program body, all magic numbers are avoided, which keeps consistency
+of code.
+
 ** The Coding Conventions
 
 *** Comments
@@ -58,7 +62,7 @@ There are four levels of comments:
   of '>@ param[in/out] /name/ /illustration/'
 - Code piece :: This part is at the top of one particular piece of code in
   main program or code component, just for explaining, and no '> ' is
-  required.
+  required. 
 - Inline :: This part is attached at the end of a line of code.
 - Tail (optional) :: Contains the version control information is version control
   system is not available

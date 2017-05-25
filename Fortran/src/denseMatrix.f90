@@ -129,7 +129,8 @@ module denseMatrix
    contains
      !!===== Assignment and operators, as well as related. =======
      generic, public :: assignment(=) => arrayToMatrix, dArrayToMatrix, matrixToArray
-     generic, public :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, intTimesMatrix, matrixTimesMatrix
+     generic, public :: operator(*) => matrixTimesReal, matrixTimesInt, realTimesMatrix, &
+          intTimesMatrix, matrixTimesMatrix
      generic, public :: operator(+) => matrixAdd, arrayAdd
      generic, public :: operator(-) => matrixSubtract
      procedure, private, pass :: arrayToMatrix
@@ -137,7 +138,7 @@ module denseMatrix
      procedure, private, pass :: dArrayToMatrix
      procedure, private, pass :: matrixAdd
      procedure, private, pass :: arrayAdd
-     procedure, public, pass :: addMatrix     ! this is a subroutine, and other procedures are functions
+     procedure, public, pass :: addMatrix     ! this is a subroutine, others are functions
      procedure, private, pass :: matrixSubtract
      procedure, private, pass(self) :: realTimesMatrix
      procedure, private, pass :: matrixTimesreal
@@ -184,6 +185,8 @@ module denseMatrix
      procedure, public, pass :: solve
      procedure, private, pass :: solver
      !!===========================================================
+     ! eigensystem
+     !!===========================================================
      final :: matrixClean
   end type matrix
 
@@ -215,7 +218,8 @@ contains
     call self%resetToGeneral()
     call b%resetToGeneral()
 
-    associate( A=>self%comp, bb=>b%comp, info=>self%info, m=>self%nrow, n=>self%ncol, nrhs=>b%ncol )
+    associate( A=>self%comp, bb=>b%comp, info=>self%info, m=>self%nrow, &
+         n=>self%ncol, nrhs=>b%ncol )
       if ( m > n ) then
          call gels ( 'N', m, n, nrhs, A, m, bb, m, test, -1, info )
          if ( info == 0 ) then
