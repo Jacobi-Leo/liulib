@@ -19,3 +19,11 @@ As shown by its name.
 *** File ~README.org~
 This very file.
 
+** Library Components
+
+*** Dense Matrix Class
+The ~denseMatrix~ class is able to automatically assign matrix data type with
+2d array and automatically assign matrix to array. Moreover, it is able to manipulate
+matrix in a modern way similar to NumPy and MATLAB. The test.f90 provides a
+test subroutine for this class.
+
