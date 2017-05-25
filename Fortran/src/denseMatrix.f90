@@ -195,9 +195,17 @@ contains
   function solve ( self, b ) result ( x )
     type(Matrix) :: x, A
     class(Matrix), intent(in) :: self, b
+    integer :: m, n, i, j
     A = self
     x = b
     call A%solver(x)
+    m = A%getNrow()
+    n = A%getNcolumn()
+    if ( m > n ) then
+       do i = 1, m - n
+          call x%popRow()
+       end do
+    end if
   end function solve
 
   subroutine solver ( self, b )  !! not finished

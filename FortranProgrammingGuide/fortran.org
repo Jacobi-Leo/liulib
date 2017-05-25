@@ -13,8 +13,8 @@ criteria, and the coding standards.
 Due to historical reasons, there are so many obsolete /implicitors/ in the
 language Fortran. Old code use variables implicitly, F90 code call subroutines
 implicitly, and arrays with undetermined length appear all around the community.
-It is the response of this document to constrain the coding style of modern
-Fortran, so anything implicit mentioned above are forbidden.
+It is the response of this generation of coder to specify the coding style of 
+modern Fortran, so anything implicit mentioned above are forbidden.
 
 *** New data structures should be applied
 
@@ -32,6 +32,13 @@ of traditional variables, so concise interface is feasible.
 One important aspect of designing a programming framework is unity. A unit
 design of interfaces is both convenient for users and developers. It is
 fruitful to create Fortran INTERFACE to unify the similar subroutines.
+
+*** Functional Programming
+
+Though Fortran is not LISP, the spirit of functional programming is beneficial.
+By avoiding the side effects of procedures, the code get more robust. In this
+project, all functions are not allowed to have side effects. Class methods such
+as ~vec.pop()~ in C++ are set to subroutines.
 
 ** The Compiling Criteria
 
