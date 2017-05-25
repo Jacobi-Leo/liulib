@@ -164,7 +164,9 @@ program test
   case (3)
      write(*,*) "Not implemented..."
   case default
-     write(*,'(1X, A33, I2, A33)') "Wrong input! You want to test the", comp, "th module, but I don't have that!"
+     write(*,'(1X, A33, I2, A33)') &
+          &"Wrong input! You want to test the", comp, &
+          &"th module, but I don't have that!"
   end select
 
 end program test
