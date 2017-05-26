@@ -7,8 +7,8 @@
 ! or -autodouble (in ifort).
 !
 ! Since Fortran 2003 features are massively utilized in this code,
-! gfortran version>=5.0 is required (v6.0 or higher is recommended),
-! and ifort 17 is verified while lower versions not tested (according to
+! gfortran version>=5.0 is required (v5.4 has been verified),
+! and ifort 17 is also verified while lower versions not tested (according to
 ! official document, ifort 16 is the first edition of ifort with full
 ! Fortran 2003 support).
 !
@@ -181,7 +181,7 @@ module denseMatrix
      procedure, public, pass :: trans
      !!===========================================================
      ! linear solver
-     ! procedure, pass :: inv
+     procedure, public, pass :: inv
      procedure, public, pass :: solve
      procedure, private, pass :: solver
      !!===========================================================
@@ -657,5 +657,30 @@ contains
        deallocate( self%comp )
     end if
   end subroutine matrixClean
+
+  function eye ( n )
+    type(Matrix) :: eye
+    integer, intent(in) :: n
+    real(kind=WP), dimension(n,n) :: tmp
+    integer :: i
+
+    tmp = 0.0
+    do i = 1,n
+       tmp(i,i) = 1.0
+    end do
+
+    eye = tmp
+  end function eye
+
+  function inv ( self )
+    type(Matrix) :: inv
+    class(Matrix), intent(in) :: self
+
+    if ( self%getNrow() /= self%getNcolumn() ) then
+       return
+    end if
+
+    inv = self%solve( eye( self%getNrow() ) )
+  end function inv
 
 end module denseMatrix

@@ -136,9 +136,29 @@ contains
     write(11, *) 'Now solution is   x = '
     Vec2 = Mat%solve(Vec)
     call Vec2%writeToFile(11)
-    close(11)
+
+    call Mat%popRow()
+    call Vec%popRow()
+
+    write(11,*) 'Now   Mat = '
+    call Mat%writeToFile(11)
+
+    Mat2 = Mat%inv()
+    write(11,*) 'The inverse matrix of  Mat  is:'
+    call Mat2%writeToFile(11)
+
+    Mat3 = Mat * Mat2
+    write(11,*) 'Mat * Mat^-1 ='
+    call Mat3%writeToFile(11)
+
+    Mat3 = Mat2 * Mat
+    write(11,*) 'Mat^-1 * Mat = '
+    call Mat3%writeToFile(11)
 
     write(*,*) "Please check file denseMatrixResult.txt..."
+
+
+    close(11)
   end subroutine tester_denseMatrix
 
 end module tester
@@ -149,7 +169,7 @@ program test
 
   integer :: comp
 
-  write(*,*) "This is the list of components:"
+  write(*,*) "This is the list of my components:"
   write(*,*) "1. constant"
   write(*,*) "2. denseMatrix"
   write(*,*) "3. equSolver"
