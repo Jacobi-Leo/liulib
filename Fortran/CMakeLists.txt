@@ -42,5 +42,5 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect} ${precision} ${perfor
 #
 # Compile.
 #
-file(GLOB_RECURSE sources  src/test.f90 src/denseMatrix.f90 src/constant.f90 src/*.h)
+file(GLOB_RECURSE sources  src/*.f90 src/*.h)
 add_executable(prog ${sources})
