@@ -5,7 +5,8 @@ module equations
   private
 
   integer :: equN = 18  ! this number should be multiple of six
-  public :: equN, f
+  logical :: isJacobianPresented = .false.
+  public :: equN, f, jacobian
 
 contains
   function f ( x )
@@ -44,6 +45,11 @@ contains
     end do
 
   end function f
+
+  function jacobian ( x ) result ( jac )
+    real(kind=WP), dimension(equN, equN) :: jac
+    real(kind=WP), dimension(equN), intent(in) :: x
+  end function jacobian
 end module equations
 
 module equSolver
@@ -52,5 +58,29 @@ module equSolver
   use denseMatrix
   implicit none
   private
-end module equSolver
 
+  abstract interface
+     function f ( x )
+       import :: WP
+       real(kind=WP), dimension(:) :: f
+       real(kind=WP), dimension(:), intent(in) :: x
+     end function f
+  end interface
+
+  type, public :: EquationSystem
+     integer, private :: n  ! number of variables
+     logical, private :: isJacExi = .false.  ! Is Jacobian Existed
+     procedure(f), pointer, private, nopass :: func => null()
+   contains
+     procedure, public, pass :: solve
+  end type EquationSystem
+
+contains
+
+  function solve ( self, x0 ) result ( x )
+    class(EquationSystem), intent(in) :: self
+    real(kind=WP), intent(in), dimension(:) :: x0
+    real(kind=WP), dimension(:) :: x
+  end function solve
+
+end module equSolver
