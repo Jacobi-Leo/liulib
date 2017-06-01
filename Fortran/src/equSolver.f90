@@ -4,11 +4,25 @@ module equations
   save
   private
 
-  integer :: equN = 18  ! this number should be multiple of six
+  integer, parameter :: equN = 18  ! this number should be multiple of six
   logical :: isJacobianPresented = .false.
-  public :: equN, f, jacobian
+  real(kind=WP), dimension(equN) :: equX0
+  real(kind=WP), dimension(equN) :: equX
+  public :: equSolve, equX, equX0
 
 contains
+
+  subroutine equSolve ( method )
+    integer, intent(in) :: method
+    select case (method)
+    case (0) ! this is MINPACK
+    case (1) ! this is Newton method
+    case (2) ! this Simplified Newton method
+    case default
+       write(*,*) "This method has not implemented."
+    end select
+  end subroutine equSolve
+
   function f ( x )
     real(kind=WP), dimension(equN) :: f
     real(kind=WP), intent(in), dimension(equN) :: x
@@ -49,38 +63,46 @@ contains
   function jacobian ( x ) result ( jac )
     real(kind=WP), dimension(equN, equN) :: jac
     real(kind=WP), dimension(equN), intent(in) :: x
+    jac = 1.
   end function jacobian
+
 end module equations
 
-module equSolver
-  use constant
-  use equations
-  use denseMatrix
-  implicit none
-  private
+! module equSolver
+!   use constant
+!   use denseMatrix
+!   implicit none
+!   private
 
-  abstract interface
-     function f ( x )
-       import :: WP
-       real(kind=WP), dimension(:) :: f
-       real(kind=WP), dimension(:), intent(in) :: x
-     end function f
-  end interface
+!   abstract interface
+!      function f ( x )
+!        import :: WP
+!        real(kind=WP), dimension(:) :: f
+!        real(kind=WP), dimension(:), intent(in) :: x
+!      end function f
+!      function jac ( x )
+!        import :: WP
+!        real(kind=WP), dimension(:,:) :: jac
+!        real(kind=WP), dimension(:), intent(in) :: x
+!      end function jac
+!   end interface
 
-  type, public :: EquationSystem
-     integer, private :: n  ! number of variables
-     logical, private :: isJacExi = .false.  ! Is Jacobian Existed
-     procedure(f), pointer, private, nopass :: func => null()
-   contains
-     procedure, public, pass :: solve
-  end type EquationSystem
 
-contains
+!   type, public :: EquationSystem
+!      integer, private :: n  ! number of variables
+!      logical, private :: isJacPre = .false.  ! Is Jacobian presented
+!      procedure(f), pointer, private, nopass :: func => null()
+!      procedure(jac), pointer, private, nopass :: jac => null()
+!    contains
+!      procedure, public, pass :: solve
+!   end type EquationSystem
 
-  function solve ( self, x0 ) result ( x )
-    class(EquationSystem), intent(in) :: self
-    real(kind=WP), intent(in), dimension(:) :: x0
-    real(kind=WP), dimension(:) :: x
-  end function solve
+! contains
 
-end module equSolver
+!   function solve ( self, x0 ) result ( x )
+!     class(EquationSystem), intent(in) :: self
+!     real(kind=WP), intent(in), dimension(:) :: x0
+!     real(kind=WP), dimension(:) :: x
+!   end function solve
+
+! end module equSolver

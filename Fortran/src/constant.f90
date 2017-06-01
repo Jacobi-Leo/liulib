@@ -8,7 +8,7 @@ module constant
 
   integer, parameter :: SGL = selected_real_kind(p=6), DBL = selected_real_kind(p=13)
   integer, parameter :: WP = DBL
-  real(kind=WP), parameter :: E = exp(1.0), PI = 4.0*atan(1.0)
+  real(kind=WP), parameter :: E = exp( 1.0_WP ), PI = 4.0_WP * atan( 1.0_WP )
 
 end module constant
 

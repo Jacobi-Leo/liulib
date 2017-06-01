@@ -217,10 +217,10 @@ contains
 
     if ( (.not. self%isAllocated()) .or. (.not. b%isAllocated()) ) then
        self%info = 126
-       return
+       stop
     else if ( self%nrow /= b%nrow ) then
        self%info = 127
-       return
+       stop
     end if
 
     call self%resetToGeneral()
@@ -241,7 +241,7 @@ contains
          call gesv( n, nrhs, A, m, ipiv, bb, n, info )
       else
          info = 127
-         return
+         stop
       end if
     end associate
   end subroutine solver
@@ -252,7 +252,7 @@ contains
     real(kind=WP), dimension(:,:), allocatable :: tmp
     if ( self%ncol /= size(row) ) then
        self%info = 127
-       return
+       stop
     else
        call self%resetToGeneral()
        allocate( tmp(self%nrow+1, self%ncol) )
@@ -280,7 +280,7 @@ contains
     call self%resetToGeneral()
     if ( self%nrow /= size(column) ) then
        self%info = 127
-       return
+       stop
     else
        call self%T()
        call self%pushRow(column)
@@ -386,7 +386,7 @@ contains
        r = self%comp(i,j)
     else
        self%info = 126
-       return
+       stop
     end if
   end function getEllement
 
@@ -477,7 +477,7 @@ contains
        r = self
     else if ( m1 /= m2 .or. n1 /= n2 ) then
        r%info = 127
-       return
+       stop
     else
        r%nrow = m1
        r%ncol = n1
@@ -503,10 +503,10 @@ contains
 
     if ( .not. self%isAllocated() ) then
        self%info = 126
-       return
+       stop
     else if ( self%nrow /= mat%nrow .or. self%ncol /= mat%ncol ) then
        self%info = 127
-       return
+       stop
     else
        self%comp = self%comp + mat%comp
     end if
@@ -532,7 +532,7 @@ contains
 
     if ( .not. self%isAllocated() ) then
        r%info = 126
-       return
+       stop
     end if
 
     r%nrow = self%nrow
@@ -582,10 +582,10 @@ contains
 
     if ( self%ncol /= mat%nrow ) then
        matrixTimesMatrix%info = 127
-       return
+       stop
     else if ( ( .not. self%isAllocated() ) .or. ( .not. mat%isAllocated() ) ) then
        matrixTimesMatrix%info = 126
-       return
+       stop
     else
        matrixTimesMatrix%nrow = self%nrow
        matrixTimesMatrix%ncol = mat%ncol
@@ -598,7 +598,7 @@ contains
     integer :: tmp
 
     if ( ( .not. self%isAllocated() ) .or. self%isSymmetric() ) then
-       return
+       stop
     else
        tmp = self%nrow
        self%nrow = self%ncol
@@ -610,11 +610,6 @@ contains
   function trans ( self )
     type(Matrix) :: trans
     class(Matrix), intent(in) :: self
-
-    ! if ( self%banded ) then
-    !    trans%info = 125
-    !    return
-    ! end if
 
     allocate( trans%comp(self%ncol, self%nrow) )
     trans = transpose(self%comp)
@@ -629,7 +624,7 @@ contains
     integer :: i, j
 
     if ( .not. self%isAllocated() ) then
-       return
+       stop
     else
        !! This is a bad solution
        !!==========================================!
@@ -677,7 +672,7 @@ contains
     class(Matrix), intent(in) :: self
 
     if ( self%getNrow() /= self%getNcolumn() ) then
-       return
+       stop
     end if
 
     inv = self%solve( eye( self%getNrow() ) )
