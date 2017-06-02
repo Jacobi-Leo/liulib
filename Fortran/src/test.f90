@@ -155,11 +155,25 @@ contains
     write(11,*) 'Mat^-1 * Mat = '
     call Mat3%writeToFile(11)
 
+    close(11)
     write(*,*) "Please check file denseMatrixResult.txt..."
+  end subroutine tester_denseMatrix
 
+  subroutine tester_equSolver
+    use equations
+    implicit none
+
+    integer :: i
+    call equSolve()
+
+    open(unit=11, file="equSolverResult.txt", action="write", status="replace")
+    do i = 1, equN
+       write(11,*) equX(i)
+    end do
 
     close(11)
-  end subroutine tester_denseMatrix
+    write(*,*) 'Please check file equSolverResult.txt...'
+  end subroutine tester_equSolver
 
 end module tester
 
@@ -182,7 +196,7 @@ program test
   case (2)
      call tester_denseMatrix ()
   case (3)
-     write(*,*) "Not implemented..."
+     call tester_equSolver ()
   case default
      write(*,'(1X, A33, I2, A33)') &
           &"Wrong input! You want to test the", comp, &

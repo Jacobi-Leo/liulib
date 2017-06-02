@@ -5,23 +5,68 @@ module equations
   private
 
   integer, parameter :: equN = 18  ! this number should be multiple of six
+  integer, parameter :: varN = 18  !
+  real(kind=DBL), parameter :: tol = epsilon(1.0_DBL) * 10._DBL
   logical :: isJacobianPresented = .false.
   real(kind=WP), dimension(equN) :: equX0
   real(kind=WP), dimension(equN) :: equX
   public :: equSolve, equX, equX0
 
+  interface fun
+     module procedure func_noj
+     module procedure func_j
+  end interface fun
+
 contains
 
   subroutine equSolve ( method )
-    integer, intent(in) :: method
+    integer, intent(in), optional :: method = 0
+    real(kind=DBL), external :: func_j, func_noj
+    real(kind=DBL), dimension(equN) :: fvec
+    real(kind=DBL), dimension(equN, varN) :: fjac
+    integer :: info, lwa
+    real(kind=DBL), dimension(:), allocatable :: wa
+    lwa = equN * (equN + 13) / 2 + 1
+    allocate( wa(lwa) )
+    equX = equX0
+
     select case (method)
     case (0) ! this is MINPACK
+       if ( isJacobianPresented ) then
+          call hybrj1 ( func_j, equN, equX, fvec, fjac, varN, tol, info, wa, lwa )
+       else
+          call hybrd1 ( func_noj, equN, equX, fvec, tol, info, wa, lwa )
+       end if
     case (1) ! this is Newton method
     case (2) ! this Simplified Newton method
     case default
        write(*,*) "This method has not implemented."
     end select
+
   end subroutine equSolve
+
+  subroutine func_noj ( N, X, FVEC, IFLAG )
+    integer, intent(in) :: N
+    integer, intent(inout) :: IFLAG
+    real(kind=DBL), dimension(N), intent(in) :: X
+    real(kind=DBL), dimension(N), intent(out) :: FVEC
+
+    FVEC = f ( X )
+  end subroutine func_noj
+
+  subroutine func_j ( N, X, FVEC, FJAC, LDFJAC, IFLAG )
+    integer, intent(in) :: N
+    integer, intent(inout) :: IFLAG
+    real(kind=DBL), dimension(N), intent(in) :: X
+    real(kind=DBL), dimension(N), intent(inout) :: FVEC
+    real(kind=DBL), dimension(LDFJAC, N), intent(inout) :: FJAC
+
+    if ( IFLAG == 1 ) then
+       FVEC = f ( X )
+    else if ( IFLAG == 2 ) then
+       FJAC = jacobian ( X )
+    end if
+  end subroutine func_j
 
   function f ( x )
     real(kind=WP), dimension(equN) :: f
@@ -63,46 +108,7 @@ contains
   function jacobian ( x ) result ( jac )
     real(kind=WP), dimension(equN, equN) :: jac
     real(kind=WP), dimension(equN), intent(in) :: x
-    jac = 1.
+    jac = 0.
   end function jacobian
 
 end module equations
-
-! module equSolver
-!   use constant
-!   use denseMatrix
-!   implicit none
-!   private
-
-!   abstract interface
-!      function f ( x )
-!        import :: WP
-!        real(kind=WP), dimension(:) :: f
-!        real(kind=WP), dimension(:), intent(in) :: x
-!      end function f
-!      function jac ( x )
-!        import :: WP
-!        real(kind=WP), dimension(:,:) :: jac
-!        real(kind=WP), dimension(:), intent(in) :: x
-!      end function jac
-!   end interface
-
-
-!   type, public :: EquationSystem
-!      integer, private :: n  ! number of variables
-!      logical, private :: isJacPre = .false.  ! Is Jacobian presented
-!      procedure(f), pointer, private, nopass :: func => null()
-!      procedure(jac), pointer, private, nopass :: jac => null()
-!    contains
-!      procedure, public, pass :: solve
-!   end type EquationSystem
-
-! contains
-
-!   function solve ( self, x0 ) result ( x )
-!     class(EquationSystem), intent(in) :: self
-!     real(kind=WP), intent(in), dimension(:) :: x0
-!     real(kind=WP), dimension(:) :: x
-!   end function solve
-
-! end module equSolver
