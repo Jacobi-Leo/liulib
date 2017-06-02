@@ -33,12 +33,31 @@ becomes less worthwhile.
 Taking the design of derived data type, ~denseMatrix~, for example, 
 it seems a good practice to
 design an abstract type ~Matrix~ first and then create extended derived data
-types such as ~denseMatrix~, ~bandedMatrix~, and ~sparseMatrix~, 
+types such as ~denseMatrix~, ~bandMatrix~, and ~sparseMatrix~, 
 but this is redundant in fact. The three kinds of matrices differ a
 lot in storage structure of attributes. More importantly, there are actually
 only three kinds of matrix all around there, not even a fourth kind, so one
 can just implement the three one by one, which leads to great flexibility and
 much less data dependency.
+
+*** Make proper choice on data encapsulation
+
+Data encapsulation is very important in modern programming languages since it
+provides another layer of abstraction to make programming easier with less
+bugs, but there are choices to be made.
+
+There two basic method of data encapsulation in Fortran: module in Fortran 95
+and class in Fortran 2003. The second method is similar to C++, and is standard
+OOP way of life, while the first method is special in Fortran, and it is
+something just between OOP and non-OOP. In a word, Fortran provides a flexible
+system of data encapsulation, users should make choices with wisdom.
+
+One heuristic principle on choosing data encapsulation method is that class
+should be utilized on very basic mathematical concepts such as matrix and
+module should be considered while 'higher level' mathematical concepts such as
+nonlinear equation solving. The reason beneath such principle is that matrices 
+are used many times without being able to be predicted, while solving nonlinear
+equations is task that will happen in a handful of times.
 
 *** Interface should be unified and concise
 
@@ -68,8 +87,8 @@ compiling with ifort, then all the numbers in code can be written without
 the ugly letter 'd'.
 
 Another method is using form ~1.23_wp~ as ~wp~ is defined as the working
-precision. In program body, all magic numbers are avoided, which keeps consistency
-of code.
+precision. In program body, all magic numbers are avoided, which keeps 
+consistency of code.
 
 ** The Coding Conventions
 
@@ -88,7 +107,7 @@ There are four levels of comments:
   main program or code component, just for explaining, and no '> ' is
   required. 
 - Inline :: This part is attached at the end of a line of code.
-- Tail (optional) :: Contains the version control information is version control
+- Tail (optional) :: Contains the version control information if version control
   system is not available
 
 *** Variable Name
@@ -111,7 +130,8 @@ C++ to manage the namespace properly.
 *** Conventions on Specific Naming and Spacing
 
 - The attributive part of name must be the zeroth part.
-- The attributive should be abbreviation instead of full spelling, i.e. semi, full, tmp, loc, rmt.
+- The attributive should be abbreviation instead of full spelling.
+- Examples of attributives: ~semi~, ~full~, ~tmp~, ~loc~, ~rmt~.
 - Blank lines are required between two blocks of code.
 - Function and subroutines should be in the form of ~xxXxxXxx( xx, xx )~.
 - Programming instructions should be in the form of ~xx ( xx, xx, xx )~.
