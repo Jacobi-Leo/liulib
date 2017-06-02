@@ -160,7 +160,7 @@ contains
   end subroutine tester_denseMatrix
 
   subroutine tester_equSolver
-    use equations
+    use equSolver
     implicit none
 
     integer :: i

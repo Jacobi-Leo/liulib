@@ -1,4 +1,4 @@
-module equations
+module equSolver
   use constant
   implicit none
   save
@@ -10,18 +10,13 @@ module equations
   logical :: isJacobianPresented = .false.
   real(kind=WP), dimension(equN) :: equX0
   real(kind=WP), dimension(equN) :: equX
-  public :: equSolve, equX, equX0
-
-  interface fun
-     module procedure func_noj
-     module procedure func_j
-  end interface fun
+  public :: equSolve, equX, equX0, equN, varN
 
 contains
 
   subroutine equSolve ( method )
-    integer, intent(in), optional :: method = 0
-    real(kind=DBL), external :: func_j, func_noj
+    integer, intent(in), optional :: method
+    ! real(kind=DBL), external :: func_j, func_noj
     real(kind=DBL), dimension(equN) :: fvec
     real(kind=DBL), dimension(equN, varN) :: fjac
     integer :: info, lwa
@@ -30,18 +25,20 @@ contains
     allocate( wa(lwa) )
     equX = equX0
 
-    select case (method)
-    case (0) ! this is MINPACK
+    if ( present(method) ) then
+       select case (method)
+       case (1) ! this is Newton method
+       case (2) ! this Simplified Newton method
+       case default
+          write(*,*) "This method has not implemented."
+       end select
+    else        ! this is MINPACK
        if ( isJacobianPresented ) then
           call hybrj1 ( func_j, equN, equX, fvec, fjac, varN, tol, info, wa, lwa )
        else
           call hybrd1 ( func_noj, equN, equX, fvec, tol, info, wa, lwa )
        end if
-    case (1) ! this is Newton method
-    case (2) ! this Simplified Newton method
-    case default
-       write(*,*) "This method has not implemented."
-    end select
+    end if
 
   end subroutine equSolve
 
@@ -55,7 +52,7 @@ contains
   end subroutine func_noj
 
   subroutine func_j ( N, X, FVEC, FJAC, LDFJAC, IFLAG )
-    integer, intent(in) :: N
+    integer, intent(in) :: N, LDFJAC
     integer, intent(inout) :: IFLAG
     real(kind=DBL), dimension(N), intent(in) :: X
     real(kind=DBL), dimension(N), intent(inout) :: FVEC
@@ -111,4 +108,4 @@ contains
     jac = 0.
   end function jacobian
 
-end module equations
+end module equSolver
