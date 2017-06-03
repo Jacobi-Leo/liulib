@@ -1,4 +1,5 @@
 module equSolver
+  !! buggy, not usable.
   use constant
   implicit none
   save
@@ -16,11 +17,11 @@ contains
 
   subroutine equSolve ( method )
     integer, intent(in), optional :: method
-    ! real(kind=DBL), external :: func_j, func_noj
     real(kind=DBL), dimension(equN) :: fvec
     real(kind=DBL), dimension(equN, varN) :: fjac
     integer :: info, lwa
     real(kind=DBL), dimension(:), allocatable :: wa
+    external :: func_j, func_noj
     lwa = equN * (equN + 13) / 2 + 1
     allocate( wa(lwa) )
     equX = equX0
