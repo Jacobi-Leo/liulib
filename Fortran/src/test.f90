@@ -164,7 +164,8 @@ contains
     implicit none
 
     integer :: i
-    call equSolve()
+    i = 1
+    call equSolve( i )
 
     open(unit=11, file="equSolverResult.txt", action="write", status="replace")
     do i = 1, equN

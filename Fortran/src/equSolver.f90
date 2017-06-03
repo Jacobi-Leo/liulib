@@ -21,19 +21,21 @@ contains
     real(kind=DBL), dimension(equN, varN) :: fjac
     integer :: info, lwa
     real(kind=DBL), dimension(:), allocatable :: wa
-    external :: func_j, func_noj
     lwa = equN * (equN + 13) / 2 + 1
     allocate( wa(lwa) )
     equX = equX0
 
     if ( present(method) ) then
        select case (method)
-       case (1) ! this is Newton method
-       case (2) ! this Simplified Newton method
-       case default
+       case (1) ! this is BFS method
+          call BFS ()
+       case (2) ! this
           write(*,*) "This method has not implemented."
+       case default
+          write(*,*) "This method is not valid!"
        end select
     else        ! this is MINPACK
+       write(*,*) "There are known bugs, choose another method."
        if ( isJacobianPresented ) then
           call hybrj1 ( func_j, equN, equX, fvec, fjac, varN, tol, info, wa, lwa )
        else
@@ -108,5 +110,67 @@ contains
     real(kind=WP), dimension(equN), intent(in) :: x
     jac = 0.
   end function jacobian
+
+  subroutine BFS ()
+    implicit none
+    integer :: i, j, n=equN itmax = 200
+    real(kind=WP) :: eps, reps
+    x0 = equX0
+
+    if ( WP == DBL ) then
+       eps = 5d-5
+       reps = 2d4
+    else if ( WP == SGL ) then
+       eps = 5d-2
+       reps = 2d1
+    else
+       eps = epsilon(1.0_wp) * 10000.0_wp
+       reps = 1.0_wp / eps
+    end if
+
+    do j = 1, equN
+       x1 = x0
+       x1(j) = x0(j) + eps
+       df(:,j) = ( f(x1) - f(x0) ) * reps
+    end do
+    jac = df
+    H0 = jac%inv()
+
+    do i = 1, itmax
+       f0 = f( x0 )
+       tmp = H0 * (-1.0)
+       tmp = tmp * f0
+       bridge = tmp%trans()
+       xtmp = bridge(1,:)
+       x1 =  xtmp + x0
+       dx = x1 - x0
+       f1 = f( x1 )
+       y = f1 - f0
+       tmp = y%trans() * ( H0 * y )
+       t1 = tmp%getEllement(1,1)
+       tmp = dx
+       tmp = tmp%trans() * y
+       t2 = tmp%getEllement(1,1)
+       u = 1. + t1 / t2
+       tmp = dx
+       m1 = tmp * tmp%trans() * u
+       m2 = tmp * y%trans() * H0
+       m3 = H0 * y * tmp%trans()
+       tmp = tmp%trans() * y
+       ttt = 1.0 / tmp%getEllement(1,1)
+       H1 = ( m1 + ( (-1.0) * ( m2 + ( (-1.0) * m3 ) ) ) ) * ttt
+
+       x0 = x1
+       H0 = H1
+
+       dx2 = sqrt( sum( dx * dx ) )
+
+       if ( dx2 < tol ) exit
+
+    end do
+
+    equX = x0
+
+  end subroutine BFS
 
 end module equSolver

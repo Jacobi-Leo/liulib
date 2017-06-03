@@ -190,6 +190,8 @@ module denseMatrix
      final :: matrixClean
   end type matrix
 
+  public :: eye
+
 contains
 
   function solve ( self, b ) result ( x )
