@@ -2,4 +2,5 @@ a.out
 *.txt
 *.mod
 Fortran/build/*
+newFortran/build/*
 FortranMPI/build/*

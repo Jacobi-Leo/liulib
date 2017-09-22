@@ -47,3 +47,5 @@ set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} ${dialect} ${precision} 
 #
 file(GLOB_RECURSE sources src/*.f src/*.f90 src/*.h)
 add_executable(prog ${sources})
+
+# This one is old, the newer version is in project GridAveragedFVM.
