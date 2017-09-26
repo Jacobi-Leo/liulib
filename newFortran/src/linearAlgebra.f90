@@ -1,5 +1,5 @@
 module linearAlgebra
-  use constant
+  use utils
   use denseMatrix
   implicit none
   public
@@ -29,9 +29,12 @@ contains
     real(kind=WP), intent(in) :: a1, an
     real(kind=WP), intent(in), optional :: base
     real(kind=WP), dimension(n) :: l, ll
+    real(kind=WP) :: b
 
     if ( .not. present( base ) ) then
-       base = 10.0_WP
+       b = 10.0_WP
+    else
+       b = base
     end if
 
     ll = linspace(a1, an, n)

@@ -5,6 +5,7 @@
 
 module constant
   implicit none
+  public
 
   integer, parameter :: SGL = selected_real_kind(p=6), DBL = selected_real_kind(p=13)
   integer, parameter :: WP = DBL

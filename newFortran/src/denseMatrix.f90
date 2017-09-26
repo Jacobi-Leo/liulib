@@ -16,7 +16,6 @@
 ! to compiler flag.
 
 module denseMatrix
-  use constant
   use utils
   implicit none
   private
@@ -25,7 +24,7 @@ module denseMatrix
 
   interface gesv
      subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        real(kind=SGL), intent(inout), dimension(LDA, N) :: A
@@ -33,7 +32,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine sgesv
      subroutine dgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        real(kind=DBL), intent(inout), dimension(LDA, N) :: A
@@ -41,7 +40,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine dgesv
      subroutine zgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        complex(kind=DBL), intent(inout), dimension(LDA, N) :: A
@@ -49,7 +48,7 @@ module denseMatrix
        integer, intent(inout), dimension(N) :: IPIV
      end subroutine zgesv
      subroutine cgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: N, NRHS, LDA, LDB
        integer, intent(out) :: INFO
        complex(kind=SGL), intent(inout), dimension(LDA, N) :: A
@@ -64,7 +63,7 @@ module denseMatrix
      !! However, if assumed-shape dummy array used, workspace query is broken,
      !! which is wired, still can't figure out why.
      subroutine sgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        character, intent(in) :: TRANS
        integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
        integer, intent(out) :: INFO
@@ -73,7 +72,7 @@ module denseMatrix
        real(kind=SGL), intent(inout), dimension(*) :: WORK
      end subroutine sgels
      subroutine dgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        character, intent(in) :: TRANS
        integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
        integer, intent(out) :: INFO
@@ -82,7 +81,7 @@ module denseMatrix
        real(kind=DBL), intent(inout), dimension(*) :: WORK
      end subroutine dgels
      subroutine cgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        character, intent(in) :: TRANS
        integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
        integer, intent(out) :: INFO
@@ -91,7 +90,7 @@ module denseMatrix
        real(kind=SGL), intent(inout), dimension(*) :: WORK
      end subroutine cgels
      subroutine zgels ( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        character, intent(in) :: TRANS
        integer, intent(in) :: M, N, NRHS, LDA, LDB, LWORK
        integer, intent(out) :: INFO
@@ -103,7 +102,7 @@ module denseMatrix
 
   interface getri
      subroutine sgetri ( N, A, LDA, IPIV, WORK, LWORK, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: N, LDA, LWORK
        integer, intent(out) ::  INFO
        real(kind=SGL), dimension( lda, n ) :: A
@@ -111,7 +110,7 @@ module denseMatrix
        real(kind=SGL), dimension( * ), intent(inout) :: WORK
      end subroutine sgetri
      subroutine dgetri ( N, A, LDA, IPIV, WORK, LWORK, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: N, LDA, LWORK
        integer, intent(out) ::  INFO
        real(kind=DBL), dimension( lda, n ) :: A
@@ -119,7 +118,7 @@ module denseMatrix
        real(kind=DBL), dimension( * ), intent(inout) :: WORK
      end subroutine dgetri
      subroutine zgetri ( N, A, LDA, IPIV, WORK, LWORK, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: N, LDA, LWORK
        integer, intent(out) ::  INFO
        complex(kind=DBL), dimension( lda, n ) ::  A
@@ -127,7 +126,7 @@ module denseMatrix
        complex(kind=DBL), dimension( * ), intent(inout) ::  WORK
      end subroutine zgetri
      subroutine cgetri ( N, A, LDA, IPIV, WORK, LWORK, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: N, LDA, LWORK
        integer, intent(out) ::  INFO
        complex(kind=SGL), dimension( lda, n ) ::  A
@@ -138,28 +137,28 @@ module denseMatrix
 
   interface getrf
      subroutine sgetrf ( M, N, A, LDA, IPIV, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: M, N, LDA
        integer, intent(out) ::  INFO
        real(kind=SGL), dimension( lda, n ) :: A
        integer, dimension( n ), intent(inout) ::  IPIV
      end subroutine sgetrf
      subroutine dgetrf ( M, N, A, LDA, IPIV, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: M, N, LDA
        integer, intent(out) ::  INFO
        real(kind=DBL), dimension( lda, n ) :: A
        integer, dimension( n ), intent(inout) ::  IPIV
      end subroutine dgetrf
      subroutine cgetrf ( M, N, A, LDA, IPIV, INFO )
-       use constant, only: SGL
+       use utils, only: SGL
        integer, intent(in) :: M, N, LDA
        integer, intent(out) ::  INFO
        complex(kind=SGL), dimension( lda, n ) ::  A
        integer, dimension( n ), intent(inout) ::  IPIV
      end subroutine cgetrf
      subroutine zgetrf ( M, N, A, LDA, IPIV, INFO )
-       use constant, only: DBL
+       use utils, only: DBL
        integer, intent(in) :: M, N, LDA
        integer, intent(out) ::  INFO
        complex(kind=DBL), dimension( lda, n ) ::  A

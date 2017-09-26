@@ -1,6 +1,6 @@
 program test
-  use constant
-  use denseMatrix
+  use utils
+  use linearAlgebra
   implicit none
 
   real(kind=WP) :: a(4,4), b(4), b2(4,1)
