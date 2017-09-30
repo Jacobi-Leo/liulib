@@ -20,7 +20,7 @@ module denseMatrix
   implicit none
   private
 
-  public :: eye, solve, inv, writeMatrix
+  public :: eye, solve, inv, writeMatrix, zeros, ones
 
   interface gesv
      subroutine sgesv ( N, NRHS, A, LDA, IPIV, B, LDB, INFO)
@@ -233,6 +233,18 @@ contains
        eye(i,i) = 1.0_WP
     end forall
   end function eye
+
+  function zeros ( n )
+    integer, intent(in) :: n
+    real(kind=WP), dimension(n, n) :: eye
+    zeros = 0.0_WP
+  end function zeros
+
+  function ones ( n )
+    integer, intent(in) :: n
+    real(kind=WP), dimension(n, n) :: eye
+    eye = 1.0_WP
+  end function ones
 
   function inv(A) result(Ainv)
     real(kind=WP), dimension(:,:), intent(in) :: A
